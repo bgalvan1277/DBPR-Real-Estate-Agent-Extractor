@@ -20,13 +20,11 @@ This project can be easily forked and adapted to your specific needs.
 * **Date Targeting:** Configurable "lookback" window (default: last 30 days) to find only the newest agents.
 * **Data Cleaning:** Removes invalid statuses (expired, null/void) and keeps only "Current" licensees.
 * **Mailing Ready:** Formats names and addresses into Title Case (e.g., "JOHN DOE" becomes "John Doe") so they look professional on envelopes.
-* **Excel Output:** Generates a `.xlsx` file ready for mail merge or CRM import.
+* **Excel Output:** Generates a `.csv` file ready for mail merge or CRM import.
 
 ---
 
-Brian Galvan is a marketer specializing in the development of marketing support tools, processes, procedures, and strategic thinking.
-
-I build systems that bridge the gap between raw data and actionable marketing strategies, helping businesses streamline their operations and reach their target audience effectively.
+During the day, I'm a marketer specializing in the development of marketing support tools, processes, procedures, and strategic thinking. I build systems that bridge the gap between raw data and actionable marketing strategies, helping businesses streamline their operations and reach their target audience effectively.
 
 🌐 Website: BrianGalvan.com
 
