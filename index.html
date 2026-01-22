@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBPR Real Estate License Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d2e89;
+            --primary-hover: #0a246a;
+            --accent: #f1642b;
+            --accent-hover: #d95a26;
+            --success: #f1642b;
+            --bg-dark: #0d2e89;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-card-hover: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #cbd5e1;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent-gradient: linear-gradient(135deg, #0d2e89 0%, #1a3b9e 50%, #f1642b 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .company-logo {
+            display: block;
+            margin: 0 auto 1rem auto;
+            max-width: 300px;
+            height: auto;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: var(--bg-card);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(13, 46, 137, 0.3);
+            transform: scale(1.01);
+        }
+
+        .drop-zone-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .drop-zone h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .drop-zone p {
+            color: var(--text-secondary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Instructions Box */
+        .instructions-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .instructions-greeting {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+        }
+
+        .instructions-box>p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .instructions-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: var(--accent);
+            color: var(--primary);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card-hover);
+            color: var(--accent);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .download-link:hover {
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(241, 100, 43, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Results Table */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.visible {
+            display: block;
+        }
+
+        .table-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            background: var(--bg-card-hover);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        tbody tr:hover {
+            background: rgba(13, 46, 137, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Date Range Info */
+        .date-range {
+            background: rgba(241, 100, 43, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .date-range.visible {
+            display: flex;
+        }
+
+        .date-range-icon {
+            font-size: 1.5rem;
+        }
+
+        .date-range-text {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .drop-zone {
+                padding: 2rem 1rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .select-input {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.625rem 1rem;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .select-input:hover {
+            border-color: var(--accent);
+        }
+
+        .select-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(241, 100, 43, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <img src="brian-logo.png" alt="Company Logo" class="company-logo">
+            <h1>DBPR License Extractor</h1>
+            <p class="subtitle">Filter newly licensed agents (Manatee & Sarasota) from the last 7 days</p>
+        </header>
+
+        <!-- Instructions -->
+        <div class="instructions-box">
+            <div class="instructions-greeting">👋 Hey everyone, it's Brian here!</div>
+            <p>I created this licensee extractor for us to mine new agents and format the data so we can create our own
+                mailers.</p>
+
+            <div class="instructions-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <strong>Download the Current File</strong>
+                        <p>Download the latest Statewide real estate CSV file from the DBPR Public Records page:</p>
+                        <a href="https://www2.myfloridalicense.com/real-estate-commission/public-records/"
+                            target="_blank" class="download-link">
+                            🔗 DBPR Public Records Page
+                        </a>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <strong>Find the Right Files</strong>
+                        <p>Scroll down to "Licensee Files" and search for the areas that are Sarasota and Manatee.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <strong>Upload & Go!</strong>
+                        <p>Then drag those CSV files here and boom! There you go! 🎉</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon">📁</div>
+            <h2>Drag & Drop CSV File Here</h2>
+            <p>or click to browse your files</p>
+            <input type="file" class="file-input" id="fileInput" accept=".csv">
+        </div>
+
+        <!-- Date Range Info -->
+        <div class="date-range" id="dateRange">
+            <span class="date-range-icon">📅</span>
+            <span class="date-range-text" id="dateRangeText"></span>
+        </div>
+
+        <!-- Date Range Selector -->
+        <div class="filter-controls" id="filterControls" style="display: none;">
+            <label for="daysBack">Show agents from the last:</label>
+            <select id="daysBack" class="select-input">
+                <option value="7" selected>7 days</option>
+                <option value="14">14 days</option>
+                <option value="21">21 days</option>
+                <option value="28">28 days</option>
+                <option value="60">60 days</option>
+                <option value="90">90 days</option>
+            </select>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card animate-in">
+                <div class="stat-value" id="totalRecords">0</div>
+                <div class="stat-label">Total Records in File</div>
+            </div>
+            <div class="stat-card animate-in">
+                <div class="stat-value" id="filteredCount">0</div>
+                <div class="stat-label">New Agents (Last 7 Days)</div>
+            </div>
+            <div class="stat-card animate-in">
+                <div class="stat-value" id="uniqueCities">0</div>
+                <div class="stat-label">Unique Cities</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions" id="actions" style="display: none;">
+            <button class="btn btn-primary" id="exportBtn" disabled>
+                <span>📥</span> Export Filtered CSV
+            </button>
+            <button class="btn btn-primary" id="printLabelsBtn" disabled>
+                <span>🏷️</span> Print Avery Labels
+            </button>
+            <button class="btn btn-secondary" id="resetBtn">
+                <span>🔄</span> Upload New File
+            </button>
+        </div>
+
+        <!-- Results Table -->
+        <div class="results-section" id="resultsSection">
+            <div class="table-container">
+                <div class="table-header">
+                    <span class="table-title">📋 New Real Estate Agents</span>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Mailing Address</th>
+                                <th>City</th>
+                                <th>State</th>
+                                <th>Zipcode</th>
+                                <th>License Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let allData = [];
+        let filteredData = [];
+
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const statsGrid = document.getElementById('statsGrid');
+        const actions = document.getElementById('actions');
+        const resultsSection = document.getElementById('resultsSection');
+        const tableBody = document.getElementById('tableBody');
+        const exportBtn = document.getElementById('exportBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const dateRange = document.getElementById('dateRange');
+        const dateRangeText = document.getElementById('dateRangeText');
+        const daysBackSelect = document.getElementById('daysBack');
+        const filterControls = document.getElementById('filterControls');
+        const printLabelsBtn = document.getElementById('printLabelsBtn');
+
+        // Event Listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', handleDragOver);
+        dropZone.addEventListener('dragleave', handleDragLeave);
+        dropZone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+        exportBtn.addEventListener('click', exportCSV);
+        resetBtn.addEventListener('click', resetApp);
+        daysBackSelect.addEventListener('change', filterByDate);
+        printLabelsBtn.addEventListener('click', printLabels);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].name.endsWith('.csv')) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const content = e.target.result;
+                parseCSV(content);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            allData = [];
+
+            lines.forEach((line, index) => {
+                // Parse CSV properly handling quoted fields
+                const row = parseCSVLine(line);
+
+                // Skip potential header row (first row if it contains column names)
+                if (index === 0 && row.length > 0) {
+                    const firstCell = row[0].toLowerCase();
+                    if (firstCell.includes('division') || firstCell.includes('license') ||
+                        firstCell.includes('name') || firstCell.includes('column') ||
+                        isNaN(parseInt(firstCell))) {
+                        console.log('Skipping header row:', row.slice(0, 5));
+                        return; // Skip header
+                    }
+                }
+
+                if (row.length >= 17) {
+                    allData.push({
+                        name: row[2] || '',
+                        address: row[5] || '',
+                        address2: row[6] || '',
+                        address3: row[7] || '',
+                        city: row[8] || '',
+                        state: row[9] || '',
+                        zipcode: row[10] || '',
+                        county: row[12] || '',
+                        originalDate: row[16] || '',  // Column 16 is the Original Date
+                        licenseType: row[4] || ''
+                    });
+                }
+            });
+
+            // Debug: log first few records and their counties/dates
+            console.log('Total records parsed:', allData.length);
+            console.log('Sample records:');
+            allData.slice(0, 5).forEach((r, i) => {
+                console.log(`Record ${i}: County="${r.county}", Date="${r.originalDate}", Type="${r.licenseType}"`);
+            });
+
+            // Count unique counties
+            const counties = {};
+            allData.forEach(r => {
+                const c = r.county.toLowerCase();
+                counties[c] = (counties[c] || 0) + 1;
+            });
+            console.log('Counties found:', counties);
+
+            filterByDate();
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    // Strip surrounding quotes and trim
+                    result.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            // Don't forget the last field
+            result.push(current.trim().replace(/^"|"$/g, ''));
+            return result;
+        }
+
+        function filterByDate() {
+            const daysBack = parseInt(daysBackSelect.value);
+            const today = new Date();
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - daysBack);
+
+            // Set time to start of day for accurate comparison
+            startDate.setHours(0, 0, 0, 0);
+            today.setHours(23, 59, 59, 999);
+
+            filteredData = allData.filter(record => {
+                if (!record.originalDate) return false;
+
+                // Parse date (MM/DD/YYYY format)
+                const parts = record.originalDate.split('/');
+                if (parts.length !== 3) return false;
+
+                const recordDate = new Date(
+                    parseInt(parts[2]), // year
+                    parseInt(parts[0]) - 1, // month (0-indexed)
+                    parseInt(parts[1]) // day
+                );
+
+                return recordDate >= startDate && recordDate <= today;
+            });
+
+            // Only include Sales Associates (SL) and Brokers (BK), not corporations
+            filteredData = filteredData.filter(record => {
+                const type = record.licenseType.toLowerCase();
+                return type.includes('sales') || type.includes('broker');
+            });
+
+            // Only include Manatee and Sarasota counties
+            filteredData = filteredData.filter(record => {
+                const county = record.county.toLowerCase();
+                return county === 'manatee' || county === 'sarasota';
+            });
+
+            updateUI();
+        }
+
+        function updateUI() {
+            // Show stats and controls
+            statsGrid.style.display = 'grid';
+            actions.style.display = 'flex';
+            filterControls.style.display = 'flex';
+
+            const daysBack = parseInt(daysBackSelect.value);
+            document.getElementById('totalRecords').textContent = allData.length;
+            document.getElementById('filteredCount').textContent = filteredData.length;
+
+            const uniqueCities = new Set(filteredData.map(r => r.city)).size;
+            document.getElementById('uniqueCities').textContent = uniqueCities;
+
+            // Update stat label dynamically
+            document.querySelector('#filteredCount + .stat-label').textContent = `New Agents (Last ${daysBack} Days)`;
+
+            // Show date range
+            const today = new Date();
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - daysBack);
+
+            const formatDate = (d) => `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+            dateRangeText.textContent = `Showing agents licensed between ${formatDate(startDate)} and ${formatDate(today)}`;
+            dateRange.classList.add('visible');
+
+            // Enable/disable export and print buttons
+            exportBtn.disabled = filteredData.length === 0;
+            printLabelsBtn.disabled = filteredData.length === 0;
+
+            // Render table
+            renderTable();
+            resultsSection.classList.add('visible');
+        }
+
+        function renderTable() {
+            const daysBack = parseInt(daysBackSelect.value);
+            if (filteredData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <p>No new agents found in the last ${daysBack} days</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = filteredData.map(record => `
+                <tr class="animate-in">
+                    <td><strong>${escapeHtml(formatName(record.name))}</strong></td>
+                    <td>${escapeHtml(formatAddress(record))}</td>
+                    <td>${escapeHtml(record.city)}</td>
+                    <td>${escapeHtml(record.state)}</td>
+                    <td>${escapeHtml(record.zipcode)}</td>
+                    <td>${escapeHtml(record.originalDate)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function formatAddress(record) {
+            let addr = record.address;
+            if (record.address2) addr += ' ' + record.address2;
+            if (record.address3) addr += ' ' + record.address3;
+            return addr;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatName(name) {
+            // Split by comma: "LASTNAME, FIRSTNAME MIDDLE" -> ["LASTNAME", "FIRSTNAME MIDDLE"]
+            const parts = name.split(',').map(p => p.trim());
+            if (parts.length < 2) {
+                return toTitleCase(name);
+            }
+            const lastName = parts[0];
+            const firstName = parts[1];
+            // Return as "First Name Last Name"
+            return toTitleCase(firstName) + ' ' + toTitleCase(lastName);
+        }
+
+        function toTitleCase(str) {
+            return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        function exportCSV() {
+            if (filteredData.length === 0) return;
+
+            const headers = ['Name', 'Mailing Address', 'City', 'State', 'Zipcode', 'License Date'];
+            const rows = filteredData.map(record => [
+                `"${formatName(record.name)}"`,
+                `"${formatAddress(record)}"`,
+                `"${record.city}"`,
+                `"${record.state}"`,
+                `"${record.zipcode}"`,
+                `"${record.originalDate}"`
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', `New_RE_Agents_${dateStr}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetApp() {
+            allData = [];
+            filteredData = [];
+            fileInput.value = '';
+            statsGrid.style.display = 'none';
+            actions.style.display = 'none';
+            filterControls.style.display = 'none';
+            resultsSection.classList.remove('visible');
+            dateRange.classList.remove('visible');
+            tableBody.innerHTML = '';
+            daysBackSelect.value = '7';
+        }
+
+        function printLabels() {
+            if (filteredData.length === 0) return;
+
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank');
+
+            // Generate label HTML - Avery 5160 format (30 labels per page, 3 columns x 10 rows)
+            const labelsHtml = filteredData.map(record => {
+                const fullAddress = formatAddress(record);
+                return `
+                    <div class="label">
+                        <div class="label-name">${formatName(record.name)}</div>
+                        <div class="label-address">${fullAddress}</div>
+                        <div class="label-city">${record.city}, ${record.state} ${record.zipcode}</div>
+                    </div>
+                `;
+            }).join('');
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Mailing Labels - Avery 5160</title>
+                    <style>
+                        @page {
+                            size: letter;
+                            margin: 0.5in 0.21975in;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: Arial, sans-serif;
+                            font-size: 10pt;
+                            line-height: 1.2;
+                        }
+                        
+                        .labels-container {
+                            display: flex;
+                            flex-wrap: wrap;
+                            width: 8.0625in;
+                        }
+                        
+                        .label {
+                            width: 2.625in;
+                            height: 1in;
+                            padding: 0.125in 0.1875in;
+                            overflow: hidden;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                        }
+                        
+                        .label-name {
+                            font-weight: bold;
+                            font-size: 10pt;
+                            margin-bottom: 2px;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                        
+                        .label-address {
+                            font-size: 9pt;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                        
+                        .label-city {
+                            font-size: 9pt;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                        
+                        @media print {
+                            .no-print {
+                                display: none !important;
+                            }
+                        }
+                        
+                        .print-button {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            padding: 15px 30px;
+                            font-size: 16px;
+                            background: #2563eb;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            z-index: 1000;
+                        }
+                        
+                        .print-button:hover {
+                            background: #1d4ed8;
+                        }
+                        
+                        .instructions {
+                            position: fixed;
+                            top: 80px;
+                            right: 20px;
+                            background: #f0f9ff;
+                            padding: 15px;
+                            border-radius: 8px;
+                            border: 1px solid #bae6fd;
+                            max-width: 250px;
+                            font-size: 12px;
+                            z-index: 1000;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <button class="print-button no-print" onclick="window.print()">🖨️ Print Labels</button>
+                    <div class="instructions no-print">
+                        <strong>Instructions:</strong><br>
+                        1. Load Avery 5160 labels<br>
+                        2. Click "Print Labels"<br>
+                        3. Set margins to "None"<br>
+                        4. Disable headers/footers<br>
+                        <br>
+                        <strong>Labels:</strong> ${filteredData.length}
+                    </div>
+                    <div class="labels-container">
+                        ${labelsHtml}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+    </script>
+</body>
+
+</html>
